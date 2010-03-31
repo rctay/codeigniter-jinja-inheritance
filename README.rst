@@ -13,6 +13,33 @@ Unlike Django/Jinja, the template is not run through a lexer. Block markers and
 the ``extends`` directive are all specified in PHP code, instead of
 ``'{%'/'%}'`` tags, reducing possible performance hits.
 
+Usage
+-----
+
+1. Download/Checkout a copy of the repo into either your application's or core
+   CodeIgniter's ``libraries/`` folder.
+
+2. In your ``index.php`` or applications's config::
+
+     // Name of folder that this repo is in.
+     define('JINJA_INHERITANCE_DIRNAME', 'codeigniter-jinja-inheritance');
+     // Full path to the repo.
+     define('JINJA_INHERITANCE_PATH', APPPATH.'libraries/'.JINJA_INHERITANCE_DIRNAME);
+
+   Change ``APPPATH`` to ``BASEPATH`` in the second ``define()`` if you've
+   placed the repo in the core CodeIgniter folder.
+
+3. In your controller::
+
+
+     function a_func() {
+       $this->load->library(JINJA_INHERITANCE_DIRNAME.'/ji_loader', NULL, 'ji_load');
+       $this->ji_load->view('a_view');
+     }
+
+   Modify the 3 argument to ``$this->load->library()`` to change the object
+   name which the new ``Loader`` library is accessed from.
+
 License
 -------
 
