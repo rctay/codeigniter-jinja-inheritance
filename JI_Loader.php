@@ -160,6 +160,8 @@ class JI_Loader extends CI_Loader {
 
 		$this->_current_block->content = ob_get_clean();
 
+		$should_echo = FALSE;
+
 		if (!$this->_current_view->has_child()) {
 			// We're the base template - collate output from all
 			// parents, moving upwards from the base view
@@ -179,8 +181,13 @@ class JI_Loader extends CI_Loader {
 			}
 			// echo regardless of $return option; let Loader::view()
 			// handle output buffering.
-			echo $this->_current_block->content;
+			$should_echo = TRUE;
+		} elseif (!is_a($this->_current_block->_parent, 'Head_JI_Block')) {
+			$should_echo = TRUE;
 		}
+
+		if ($should_echo)
+			echo $this->_current_block->content;
 
 		$this->_current_block = $this->_current_block->_parent;
 	}
