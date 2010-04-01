@@ -1,15 +1,15 @@
-===============================================
-Jinja-like Template Inheritance for CodeIgniter
-===============================================
+======================================================
+Jinja/Django-like Template Inheritance for CodeIgniter
+======================================================
 
 Description
 -----------
 
-This CodeIgniter-helper provides a stripped-down flavour of Django/Jinja -
+This CodeIgniter-helper provides a stripped-down flavour of Jinja/Django -
 specifically, only inheritance, which we know as ``{% extends %}`` and
-``{% block %}`` in Django/Jinja.
+``{% block %}`` in Jinja/Django.
 
-Unlike Django/Jinja, the template is not run through a lexer. Block markers and
+Unlike Jinja/Django, the template is not run through a lexer. Block markers and
 the ``extends`` directive are all specified in PHP code, instead of
 ``'{%'/'%}'`` tags, reducing possible performance hits.
 
