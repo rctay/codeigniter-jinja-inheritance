@@ -40,6 +40,68 @@ Usage
    Modify the 3 argument to ``$this->load->library()`` to change the object
    name which the new ``Loader`` library is accessed from.
 
+Examples
+--------
+
+Simple Inheritance
+^^^^^^^^^^^^^^^^^^
+
+base.php::
+
+  A heading.
+
+  <?php $this->start_block("content"); ?>
+  Content goes here.
+  <?php $this->end_block(); /* block name is optional */?>
+
+ 
+index.php::
+
+  <?php $this->extends_view("base"); ?>
+
+  <?php $this->start_block("content"); ?>
+  Welcome to foo.com!
+  <?php $this->end_block("content"); /* block name is optional */?>
+
+result::
+
+  A heading.
+
+  Welcome to foo.com!
+
+Nested Blocks
+^^^^^^^^^^^^^
+
+base.php::
+
+  A heading.
+
+  <?php $this->start_block("content"); ?>
+
+  <?php $this->start_block("blurb"); ?>
+  - Welcome to foo.com - where you'll find all things baz.
+  <?php $this->end_block("blurb");?>
+
+  Welcome to foo.com!
+  <?php $this->end_block(); /* block name is optional */?>
+
+ 
+index.php::
+
+  <?php $this->extends_view("base"); ?>
+
+  <?php $this->start_block("blurb"); ?>
+  - Thing are all baz here.
+  <?php $this->end_block("blurb");?>
+
+result (extraneous newlines eschewed for presentation purposes)::
+
+  A heading.
+
+  - Thing are all baz here.
+
+  Welcome to foo.com!
+
 License
 -------
 
