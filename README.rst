@@ -16,10 +16,10 @@ the ``extends`` directive are all specified in PHP code, instead of
 Usage
 -----
 
-1. Download/Checkout a copy of the repo into either your application's or core
-   CodeIgniter's ``libraries/`` folder.
+1. Download/Checkout a copy of the repo into the ``libraries/`` folder of either
+   your application directory or core CodeIgniter directory.
 
-2. In your ``index.php`` or applications's config::
+2. In your ``index.php`` or applications config, add the following constants::
 
      // Name of folder that this repo is in.
      define('JINJA_INHERITANCE_DIRNAME', 'codeigniter-jinja-inheritance');
@@ -29,7 +29,7 @@ Usage
    Change ``APPPATH`` to ``BASEPATH`` in the second ``define()`` if you've
    placed the repo in the core CodeIgniter folder.
 
-3. In your controller::
+3. In your controller, load your view as you normally would::
 
 
      function a_func() {
