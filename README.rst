@@ -40,6 +40,28 @@ Usage
    Modify the 3 argument to ``$this->load->library()`` to change the object
    name which the new ``Loader`` library is accessed from.
 
+Tags/Functions
+--------------
+
+The three template-inheritance tags in Jinja/Django are provided.
+
+These methods are available in views via ``$this``, as we've overriden
+CodeIgniter's default ``Loader`` implementation.
+
+ * ``extends_view('*view_name*')``
+
+   Jinja/Django: ``{% extends %}``
+
+   Specify *view_name* as you would a CodeIgniter view.
+
+ * ``start_block('*block_name*')``
+
+   Jinja/Django: ``{% block %}``
+
+ * ``end_block(['*block_name*'])``
+
+   Jinja/Django: ``{% endblock %}``
+
 Examples
 --------
 
