@@ -157,6 +157,9 @@ class JI_Loader extends CI_Loader {
 		if ($block_name !== NULL && $block_name !== $this->_current_block->_name) {
 			show_error("Incorrect block name specified to &lt;?php end_block() ?&gt;.");
 		}
+		if (is_a($this->_current_block, 'Head_JI_Block')) {
+			show_error("&lt;?php end_block() ?&gt; called without first calling &lt;?php start_block() ?&gt;.");
+		}
 
 		$this->_current_block->content = ob_get_clean();
 
@@ -183,6 +186,8 @@ class JI_Loader extends CI_Loader {
 			// handle output buffering.
 			$should_echo = TRUE;
 		} elseif (!is_a($this->_current_block->_parent, 'Head_JI_Block')) {
+			// _parent could conceivably be NULL (ie. current block
+			// is a head block) but we rule that out.
 			$should_echo = TRUE;
 		}
 
