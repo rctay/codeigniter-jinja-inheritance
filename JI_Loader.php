@@ -69,15 +69,6 @@ class JI_View {
 	var $_prev;
 	var $_next;
 
-	// Canonicalizes a view's name; currently not used
-	// Code taken from Loader::_ci_load().
-	function _canonical_view_name($_ci_view) {
-		$_ci_ext = pathinfo($_ci_view, PATHINFO_EXTENSION);
-		$_ci_file = ($_ci_ext == '') ? $_ci_view.EXT : $_ci_view;
-
-		return $_ci_file;
-	}
-
 	// Check that $name is unique with _canonical_view_name().
 	function __construct($name) {
 		$this->_name = $name;
@@ -98,8 +89,18 @@ class JI_View {
 
 class JI_Loader extends CI_Loader {
 	var $_views;
+	var $_view_names;
 	var $_current_view;
 	var $_current_block;
+
+	// Canonicalizes a view's name; currently not used
+	// Code taken from Loader::_ci_load().
+	static function _canonical_view_name($_ci_view) {
+		$_ci_ext = pathinfo($_ci_view, PATHINFO_EXTENSION);
+		$_ci_file = ($_ci_ext == '') ? $_ci_view.EXT : $_ci_view;
+
+		return $_ci_file;
+	}
 
 	/**
 	 * Since there aren't any hooks for loading views, we decorate view().
@@ -107,6 +108,7 @@ class JI_Loader extends CI_Loader {
 	function view($view, $vars = array(), $return = FALSE) {
 		// init our stuff.
 		$this->_views =& new JI_View($view);
+		$this->_view_names = array(self::_canonical_view_name($view) => 1);
 		$this->_current_view = $this->_views;
 		$this->_current_block = $this->_current_view->_blocks;
 
@@ -135,9 +137,14 @@ class JI_Loader extends CI_Loader {
 		if ($this->_current_view->has_child()) {
 			show_error("You cannot place more than one &lt;?php extends_view() ?&gt; in the same view.");
 		}
+		$canonical = self::_canonical_view_name($baser_view);
+		if (array_key_exists($canonical, $this->_view_names)) {
+			show_error("Cannot call &lt;?php extends_view() ?&gt; on the view '{$baser_view}' twice.");
+		}
 
 		// chain for use later.
 		$new_view = new JI_View($baser_view);
+		$this->_view_names[$canonical] = 1;
 		$this->_current_view->chain_view($new_view);
 	}
 
