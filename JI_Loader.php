@@ -110,9 +110,21 @@ class JI_Loader extends CI_Loader {
 		$this->_current_view = $this->_views;
 		$this->_current_block = $this->_current_view->_blocks;
 
-		// very naive; doesn't work yet.
-		$str = parent::view($view, $vars, TRUE);
-		return $str;
+		while ($this->_current_view !== NULL) {
+			$this->_current_block = $this->_current_view->_blocks;
+			$str = parent::view($this->_current_view->_name, $vars,
+				// for the last run (base view/template), echo, unless
+				// user wants a string returned.
+				$this->_current_view->_next!==NULL || $return
+			);
+
+			$this->_current_view = $this->_current_view->_next;
+		}
+
+		// Return the last run - the base template.
+		if ($return) {
+			return $str;
+		}
 	}
 
 	//---------------------------------------------------------------------
@@ -146,8 +158,29 @@ class JI_Loader extends CI_Loader {
 			show_error("Incorrect block name specified to &lt;?php end_block() ?&gt;.");
 		}
 
-		// FIXME we're assuming all content are in blocks.
 		$this->_current_block->content = ob_get_clean();
+
+		if (!$this->_current_view->has_child()) {
+			// We're the base template - collate output from all
+			// parents, moving upwards from the base view
+			$curr = $this->_current_view->_prev;
+			while ($curr !== NULL) {
+				$parent_block = $curr->_blocks->get_block($this->_current_block->_name);
+
+				// if the parent template didn't override a
+				// block in the base template's block, don't
+				// have to do anything; otherwise, take on the
+				// parent block's contents.
+				if ($parent_block !== NULL) {
+					$this->_current_block->content = $parent_block->content;
+				}
+
+				$curr = $curr->_prev;
+			}
+			// echo regardless of $return option; let Loader::view()
+			// handle output buffering.
+			echo $this->_current_block->content;
+		}
 
 		$this->_current_block = $this->_current_block->_parent;
 	}
