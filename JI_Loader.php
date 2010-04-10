@@ -93,6 +93,8 @@ class JI_Loader extends CI_Loader {
 	var $_current_view;
 	var $_current_block;
 
+	var $_build_run;
+
 	// Canonicalizes a view's name; currently not used
 	// Code taken from Loader::_ci_load().
 	static function _canonical_view_name($_ci_view) {
@@ -100,6 +102,26 @@ class JI_Loader extends CI_Loader {
 		$_ci_file = ($_ci_ext == '') ? $_ci_view.EXT : $_ci_view;
 
 		return $_ci_file;
+	}
+
+	/**
+	 *Collate output from all parents, moving upwards from the base view.
+	 */
+	static function _collate_block($view, $block) {
+		$curr = $view->_prev;
+		while ($curr !== NULL) {
+			$parent_block = $curr->_blocks->get_block($block->_name);
+
+			// if the parent template didn't override a
+			// block in the base template's block, don't
+			// have to do anything; otherwise, take on the
+			// parent block's contents.
+			if ($parent_block !== NULL) {
+				$block->content = $parent_block->content;
+			}
+
+			$curr = $curr->_prev;
+		}
 	}
 
 	/**
@@ -112,6 +134,18 @@ class JI_Loader extends CI_Loader {
 		$this->_current_view = $this->_views;
 		$this->_current_block = $this->_current_view->_blocks;
 
+		// 1st run - build structure; don't output anything.
+		$this->_build_run = TRUE;
+		while ($this->_current_view !== NULL) {
+			$this->_current_block = $this->_current_view->_blocks;
+			$str = parent::view($this->_current_view->_name, $vars, true);
+
+			$this->_current_view = $this->_current_view->_next;
+		}
+
+		// 2nd run - actually output stuff.
+		$this->_build_run = FALSE;
+		$this->_current_view = $this->_views;
 		while ($this->_current_view !== NULL) {
 			$this->_current_block = $this->_current_view->_blocks;
 			$str = parent::view($this->_current_view->_name, $vars,
@@ -134,6 +168,11 @@ class JI_Loader extends CI_Loader {
 	//---------------------------------------------------------------------
 
 	function extends_view($baser_view) {
+		if (!$this->_build_run) {
+			// structure has already been built; nothing to do.
+			return;
+		}
+
 		if ($this->_current_view->has_child()) {
 			show_error("You cannot place more than one &lt;?php extends_view() ?&gt; in the same view.");
 		}
@@ -149,6 +188,15 @@ class JI_Loader extends CI_Loader {
 	}
 
 	function start_block($block_name) {
+		if (!$this->_build_run) {
+			// don't create a new view - simple update state info,
+			// and since we'll be handling output, start output
+			// buffering.
+			$this->_current_block = $this->_current_view->_blocks->get_block($block_name);
+			ob_start();
+			return;
+		}
+
 		if ($this->_current_block->has_block_named($block_name)) {
 			show_error("A block with the name {$block_name} has already been specified.");
 		}
@@ -156,8 +204,6 @@ class JI_Loader extends CI_Loader {
 		$new_block =& new JI_Block($block_name, $this->_current_block);
 		$this->_current_block->add_block($new_block);
 		$this->_current_block = $new_block;
-
-		ob_start();
 	}
 
 	function end_block($block_name = NULL) {
@@ -168,27 +214,20 @@ class JI_Loader extends CI_Loader {
 			show_error("&lt;?php end_block() ?&gt; called without first calling &lt;?php start_block() ?&gt;.");
 		}
 
+		if ($this->_build_run) {
+			// simple - just update state info.
+			$this->_current_block = $this->_current_block->_parent;
+			return;
+		}
+
 		$this->_current_block->content = ob_get_clean();
 
 		$should_echo = FALSE;
 
-		if (!$this->_current_view->has_child()) {
-			// We're the base template - collate output from all
-			// parents, moving upwards from the base view
-			$curr = $this->_current_view->_prev;
-			while ($curr !== NULL) {
-				$parent_block = $curr->_blocks->get_block($this->_current_block->_name);
-
-				// if the parent template didn't override a
-				// block in the base template's block, don't
-				// have to do anything; otherwise, take on the
-				// parent block's contents.
-				if ($parent_block !== NULL) {
-					$this->_current_block->content = $parent_block->content;
-				}
-
-				$curr = $curr->_prev;
-			}
+		if (!$this->_current_view->has_child() ||
+		    !$this->_current_view->_next->_blocks->has_block_named($this->_current_block->_name)) {
+			// We're the base template - collate output
+			self::_collate_block($this->_current_view, $this->_current_block);
 			// echo regardless of $return option; let Loader::view()
 			// handle output buffering.
 			$should_echo = TRUE;
