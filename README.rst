@@ -76,7 +76,7 @@ base.php::
   Content goes here.
   <?php $this->end_block(); /* block name is optional */?>
 
- 
+
 index.php::
 
   <?php $this->extends_view("base"); ?>
@@ -107,14 +107,35 @@ base.php::
   Welcome to foo.com!
   <?php $this->end_block(); /* block name is optional */?>
 
- 
-index.php::
+two-column.php::
 
   <?php $this->extends_view("base"); ?>
+
+  <?php $this->start_block("content"); ?>
+
+    <?php $this->start_block("blurb"); ?>
+    <?php $this->end_block("blurb");?>
+
+    <?php
+    // Note: this block wasn't defined in base; it will show up, as expected.
+    $this->start_block("text");
+    ?>
+    <?php $this->end_block("text");?>
+
+  <?php $this->end_block(); ?>
+
+
+index.php::
+
+  <?php $this->extends_view("two-column"); ?>
 
   <?php $this->start_block("blurb"); ?>
   - Thing are all baz here.
   <?php $this->end_block("blurb");?>
+
+  <?php $this->start_block("text"); ?>
+  This is the baz you've been waiting for.
+  <?php $this->end_block("text");?>
 
 result (extraneous newlines eschewed for presentation purposes)::
 
@@ -122,7 +143,7 @@ result (extraneous newlines eschewed for presentation purposes)::
 
   - Thing are all baz here.
 
-  Welcome to foo.com!
+  This is the baz you've been waiting for.
 
 License
 -------
