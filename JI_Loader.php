@@ -102,6 +102,26 @@ class JI_Loader extends CI_Loader {
 	var $_current_block;
 
 	/**
+	 *Collate output from all parents, moving upwards from the base view.
+	 */
+	static function _collate_block($view, $block) {
+		$curr = $view->_prev;
+		while ($curr !== NULL) {
+			$parent_block = $curr->_blocks->get_block($block->_name);
+
+			// if the parent template didn't override a
+			// block in the base template's block, don't
+			// have to do anything; otherwise, take on the
+			// parent block's contents.
+			if ($parent_block !== NULL) {
+				$block->content = $parent_block->content;
+			}
+
+			$curr = $curr->_prev;
+		}
+	}
+
+	/**
 	 * Since there aren't any hooks for loading views, we decorate view().
 	 **/
 	function view($view, $vars = array(), $return = FALSE) {
@@ -163,22 +183,8 @@ class JI_Loader extends CI_Loader {
 		$should_echo = FALSE;
 
 		if (!$this->_current_view->has_child()) {
-			// We're the base template - collate output from all
-			// parents, moving upwards from the base view
-			$curr = $this->_current_view->_prev;
-			while ($curr !== NULL) {
-				$parent_block = $curr->_blocks->get_block($this->_current_block->_name);
-
-				// if the parent template didn't override a
-				// block in the base template's block, don't
-				// have to do anything; otherwise, take on the
-				// parent block's contents.
-				if ($parent_block !== NULL) {
-					$this->_current_block->content = $parent_block->content;
-				}
-
-				$curr = $curr->_prev;
-			}
+			// We're the base template - collate output
+			self::_collate_block($this->_current_view, $this->_current_block);
 			// echo regardless of $return option; let Loader::view()
 			// handle output buffering.
 			$should_echo = TRUE;
