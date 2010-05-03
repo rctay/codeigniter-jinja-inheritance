@@ -1,4 +1,12 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+
+/*
+ * Copyright (C) 2010, Tay Ray Chuan
+ *
+ * Please see README.rst for licensing details.
+ */
+
+if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * A DAG implementation.
