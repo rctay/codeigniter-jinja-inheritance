@@ -33,7 +33,7 @@ Usage
 
 
      function a_func() {
-       $this->load->library(JINJA_INHERITANCE_DIRNAME.'/ji_loader', NULL, 'ji_load');
+       $this->load->library(JINJA_INHERITANCE_DIRNAME.'/JI_Loader', NULL, 'ji_load');
        $this->ji_load->view('a_view');
      }
 
