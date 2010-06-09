@@ -29,7 +29,9 @@ Usage
    Change ``APPPATH`` to ``BASEPATH`` in the second ``define()`` if you've
    placed the repo in the core CodeIgniter folder.
 
-3. In your controller, load your view as you normally would::
+3. In your controller, load the library, and load your view as you normally
+   would - but this time with our new library, instead of the built-in View
+   library::
 
      function a_func() {
        $this->load->library(JINJA_INHERITANCE_DIRNAME.'/JI_Loader', NULL, 'ji_load');
