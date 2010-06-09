@@ -145,7 +145,7 @@ result (extraneous newlines eschewed for presentation purposes)::
 
   This is the baz you've been waiting for.
 
-License
+Licence
 -------
 
 | Copyright (C) 2010, Tay Ray Chuan
