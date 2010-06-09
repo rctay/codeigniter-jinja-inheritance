@@ -31,7 +31,6 @@ Usage
 
 3. In your controller, load your view as you normally would::
 
-
      function a_func() {
        $this->load->library(JINJA_INHERITANCE_DIRNAME.'/JI_Loader', NULL, 'ji_load');
        $this->ji_load->view('a_view');
