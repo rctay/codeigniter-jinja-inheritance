@@ -38,8 +38,8 @@ Usage
        $this->ji_load->view('a_view');
      }
 
-   Modify the 3 argument to ``$this->load->library()`` to change the object
-   name which the new ``Loader`` library is accessed from.
+   For more on the arguments accepted by library(), please see the
+   `Loader documentation <http://codeigniter.com/user_guide/libraries/loader.html>`.
 
 Tags/Functions
 --------------
