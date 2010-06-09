@@ -41,6 +41,8 @@ Usage
    For more on the arguments accepted by library(), please see the
    `Loader documentation <http://codeigniter.com/user_guide/libraries/loader.html>`.
 
+   See also `Skeleton Controller`_.
+
 Tags/Functions
 --------------
 
@@ -62,6 +64,48 @@ CodeIgniter's default ``Loader`` implementation.
  * ``end_block(['*block_name*'])``
 
    Jinja/Django: ``{% endblock %}``
+
+
+Skeleton Controller
+-------------------
+
+It may be quite a hassle to define a new function for every (trivial) page -
+here's a simple controller that takes care of all this::
+
+  class Site extends Controller {
+
+	/*
+	 * Define non-trivial functions here.
+	 */
+	static special_funcs = array(
+		'do_smtg_special'
+	);
+
+	/*
+	 * For your non-trivial functions, just call this function to render
+	 * your Jinja-style views.
+	 */
+  	function _ji_view($view) {
+  		$this->load->library(JINJA_INHERITANCE_DIRNAME.'/JI_Loader', NULL, 'ji_load');
+  		$this->ji_load->view($view);
+  	}
+
+  	/*
+  	 * Define `_remap`, a special function in CI; see
+  	 *
+  	 *   http://codeigniter.com/user_guide/general/controllers.html#remapping
+  	 *
+  	 * for more details.
+	 *
+	 * Note: AFAIK, segments aren't passed in.
+  	 */
+  	function _remap($page) {
+		if (array_key_exists($page, self::$special_funcs))
+			call_user_func(array(&$this, $page));
+		else
+  			$this->_ji_view("page-{$page}");
+  	}
+  }
 
 Examples
 --------
